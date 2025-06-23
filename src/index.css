@@ -1,13 +1,411 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 🔹 Reset global pentru border-box */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* 🔹 Bara Albă - Prima Bară */
+.navbar-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    padding: 10px 20px;
+    border-bottom: 1px solid #ddd;
 }
+
+.logo-container img {
+    width: 230px;
+}
+
+/* 🔹 Căutare */
+.search-container {
+    display: flex;
+    align-items: center;
+    border: 1.7px solid #9c9494;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 40%;
+}
+
+.search-bar {
+    flex-grow: 1;
+    padding: 5px 15px;
+    border: none;
+    outline: none;
+}
+
+.search-button {
+    background-color: white;
+    border: none;
+    color: rgb(99, 93, 93);
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.search-button:hover svg {
+    stroke: rgb(129, 192, 34);
+}
+
+.search-container:focus-within {
+    border: 2px solid rgb(50, 150, 50); /* Bordură verde */
+}
+
+
+/* 🔹 Iconițe și text */
+.navbar {
+    position: relative;
+    z-index: 1000;
+}
+
+.nav-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    color: rgb(50, 150, 50);
+}
+
+.nav-item:hover .icon-outline {
+    color: rgb(50, 150, 50);
+    stroke: rgb(50, 150, 50);
+}
+
+
+/* 🔹 Rotire iconiță telefon */
+.phone-icon {
+    transform: rotate(90deg);
+}
+
+
+/* 🔹 Iconițe */
+.icon-outline {
+    color: rgb(101, 97, 97);
+    stroke: rgb(101, 97, 97);
+    stroke-width: 2.5px;
+    font-size: 18px;
+}
+
+.flag-icon {
+    font-size: 1.25em;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+
+/* 🔹 Bara Verde */
+.navbar-bottom {
+    position: relative; 
+    background-color: rgb(50, 150, 50);
+    z-index: 900;
+    padding: 3px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 55px;
+    justify-content: center;
+    color: white;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.nav-menu li {
+    cursor: pointer;
+    position: relative;
+    padding: 10px;
+}
+
+.nav-menu li:hover {
+    color: orange;
+}
+
+.menu-item--active {
+  color: orange;
+  font-weight: bold;
+}
+
+
+
+/* 🔹 Dropdown principal */
+.dropdown {
+    position: relative;
+    white-space: nowrap;
+}
+
+/* ✅ FIX 1: Am adăugat pointer-events și efect smooth */
+.dropdown-content {
+    display: flex;
+    flex-direction: row;
+    pointer-events: auto; /* Asigură tranziții fluide între hover states */
+
+     /*gap: 100px;
+     top: 100%;*/
+
+    left: 50%;
+    transform: translate(-50%);
+    width: 88%;
+    min-height: 450px;
+    height: auto;
+    position: absolute;
+    background-color: white;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    padding: 15px;
+    z-index: 999;
+    margin-top: -12px;
+    /* Ascunderea inițială */
+    /*opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    */
+}
+
+.dropdown-container {
+    display: flex;
+    gap: 34px;
+    width: 100%;
+    margin-top: 12px;
+    margin-left: 15px;
+} 
+
+.dropdown-buffer {
+    position: absolute;
+    top: 100%; /* Se așază imediat sub buton */
+    left: 0;
+    width: 100%;
+    height: 15px; /* Creăm un spațiu invizibil */
+    background: transparent;
+}
+
+/* ✅ FIX 2: Activare la hover */
+.dropdown:hover .dropdown-content,
+.dropdown:hover .dropdown-buffer,
+.dropdown-buffer:hover + .dropdown-content  {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* 🔹 Containerul categoriilor */
+.categories {
+    border-right: 1.0px solid #ddd;
+    padding-right: 15px;
+    margin-right: 10px;
+    transform: translate(-16px);
+    margin-top: -3px;
+    list-style: none;
+    padding: 0;
+    margin-left: 19px;
+    width: 33%; /* Asigură lățime completă */
+    position: relative;
+  }
+  
+  /* 🔹 Elementele de listă */
+  .categories li {
+    position: relative;
+    padding: 8px 40px 8px 15px; /* Top | Right | Bottom | Left */
+    margin-bottom: 8px; /* Spațiu între elemente */
+    cursor: pointer;
+    width: 92%; /* Folosește întreaga lățime disponibilă */
+    box-sizing: border-box; /* Include paddingul în lățime */
+    border: 0 px solid #ddd;
+    border-radius: 4px;
+    background-color: rgb(253, 250, 250) ;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    text-align: left;
+    display: block; /* ✅ Schimbat din inline-block în block */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    color: rgb(75, 75, 75); /* ✅ Text gri în mod normal */
+
+  }
+  
+  /* 🔹 Triunghiul din dreapta */
+  .categories li .triangle-right {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: rgb(123, 112, 112);
+    transition: transform 0.3s;
+    pointer-events: none;
+  }
+  
+  /* 🔹 Stiluri hover/active */
+  .categories li:hover,
+  .categories li.active {
+    background-color: rgb(50, 150, 50);
+    color: white;
+    border-color: rgb(50, 150, 50);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .categories li:hover .triangle-right,
+  .categories li.active .triangle-right {
+    color: white;
+  }
+
+/* 🔹 Subcategoriile apar în dreapta */
+
+.subcategories {
+    /*width: 30%;
+    border-right: 1px solid #ddd;
+    padding-right: 15px;
+    position: relative;
+    */
+    margin-top: -3px;
+    padding-left: 10px;
+    list-style: none;
+    margin-left: -40px;
+    width: calc(70% - 40px);
+    padding: 0; 
+}
+/*
+.subcategories {
+    width: 70%;
+    padding-left: 15px;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    background: white;
+    min-width: 300px;
+    padding: 12px;
+    z-index: 1000;
+    border: none;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+*/
+
+.expandable:hover .subcategories {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+
+.expandable {
+    display: flex;
+    justify-content: flex-start; /* ✅ Asigură alinierea corectă */
+    align-items: center;
+    gap: 190px; /* ✅ Adaugă spațiu între text și triunghi */
+}
+
+/* 🔹 Stil pentru subcategorii */
+/*
+.subcategories li {
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+*/
+
+/*  Stilul DE BAZĂ pentru elementele <li> */
+.subcategories li {
+    position: relative; /* 🔹 Essential pentru a poziționa ::after */
+    padding: 6px  5px 6px 5px;  /* 🔹 Spațiu interior */
+    cursor: pointer;    /* 🔹 Cursor pointer la hover */
+    transition: color 0.2s ease; /* 🔹 Animatie smooth pentru culoarea textului */
+    display: block;  /* 🔹 Permite ca kiniile să aibă lungimea textului*/
+    width: fit-content; /* 🔹 Lățimea se ajustează la text */
+    margin-left: 5px;
+}
+
+  
+  
+  /*  Stilul la HOVER (doar pentru text+ pregatire pentru linie) */
+  .subcategories li:hover {
+    background: none;          /* 🔹 Asigură că nu apare fundal */
+    color: rgb(50, 150, 50);   /* 🔹 Text verde */
+    text-decoration: none;     /* 🔹 Dezactivează sublinierea implicită */
+  }
+  
+  /*  Linia de subțiere (cu animație) */
+  .subcategories li::after {
+    content: '';               /* 🔹 Necesar pentru pseudo-element */
+    position: absolute;
+    left: 5px;                /* 🔹 Aliniere cu padding-ul textului */
+    width: calc(100% - 10px); /* 🔹 Lungime = 100% - padding stânga/dreapta */
+    bottom: 8px;               /* 🔹 Distanța de la text la linie */
+    height: 1.25px;               /* 🔹 Initial invizibila */
+    background-color: rgb(50, 150, 50); /* 🔹 Culoare verde */
+    transform: scaleX(0); /* 🔹 Inițial invizibilă */
+    transform-origin: left;
+    transition: transform 0.2s ease; /* 🔹 Animație de "extindere" */
+  }
+
+  .subcategories li:hover::after {
+    transform: scaleX(1); /* 🔹 Linia apare de la stânga la dreapta */
+  }
+
+/* 🔹 Iconițe și efecte pentru dropdown */
+.triangle {
+    display: inline-block;
+    margin-left: 8px;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid white;
+    transition: transform 0.2s ease, border-top-color 0.2s ease;
+}
+
+.dropdown:hover .triangle {
+    border-top-color: orange;
+    transform: rotate(180deg);
+}
+
+
+
+.expandable:hover .triangle-right {
+    color: orange;
+}
+
+
+.triangle--active {
+  border-top-color: orange;
+}
+
+
+/* ✅ FIX 5: Responsivitate pentru ecrane mici */
+@media (max-width: 1024px) {
+    .dropdown-content {
+        min-width: 100%;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-bottom {
+        display: none;
+    }
+}
+
+
