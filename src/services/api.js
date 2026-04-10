@@ -1,7 +1,7 @@
 // Lightweight fetch-based API client. No axios dependency required.
 
 const API_URL =
-	// 'https://site-suplimente-server.onrender.com' ||
+	'https://site-suplimente-server.onrender.com' ||
 	'http://localhost:5001/api';
 
 const TOKEN_KEY = 'suplimente_token';
