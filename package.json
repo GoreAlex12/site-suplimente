@@ -18,6 +18,7 @@
 	"scripts": {
 		"start": "export NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
 		"build": "react-scripts build",
+		"deploy": "npm run build && rm -rf docs && mv build docs && git add docs && git commit -m 'deploy' && git push",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject"
 	},

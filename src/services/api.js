@@ -1,7 +1,15 @@
 // Lightweight fetch-based API client. No axios dependency required.
+//
+// API_URL resolution order:
+//   1. REACT_APP_API_URL env var (CRA picks these up at build time) — set
+//      this on your Vercel/Netlify/etc deployment to the full backend URL
+//      including the "/api" suffix, e.g.
+//      https://site-suplimente-server.onrender.com/api
+//   2. Fallback: http://localhost:5001/api for local dev.
 
+// process.env.REACT_APP_API_URL ||
 const API_URL =
-	'https://site-suplimente-server.onrender.com' ||
+	'https://site-suplimente-server.onrender.com/api' ||
 	'http://localhost:5001/api';
 
 const TOKEN_KEY = 'suplimente_token';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaHeart, FaUser, FaShoppingCart, FaPhone, FaSignOutAlt, FaCogs } from "react-icons/fa";
+import { FaUser, FaShoppingCart, FaPhone, FaSignOutAlt, FaCogs } from "react-icons/fa";
 import { HiOutlineSearch } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
@@ -127,10 +127,6 @@ const Navbar = () => {
               <FaPhone className="icon-outline phone-icon" />
               <span>0772 027 622</span>
             </div>
-            <div className="nav-item">
-              <FaHeart className="icon-outline" />
-              <span>FAVORITE</span>
-            </div>
             {user ? (
               <>
                 <div className="nav-item" onClick={() => navigate("/admin")}>
@@ -216,8 +212,7 @@ const Navbar = () => {
               AFECTIUNI
             </li>
 
-            <li>BLOG DE SANATATE</li>
-            <li>CONTACT</li>
+            <li onClick={() => navigate("/contact")}>CONTACT</li>
           </ul>
         </div>
 

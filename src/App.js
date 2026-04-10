@@ -11,6 +11,7 @@ import DiseaseDetails from "./pages/DiseaseDetails";
 import Search from "./pages/Search";
 import Login from "./pages/Login";
 import Cart from "./pages/Cart";
+import Contact from "./pages/Contact";
 
 // Admin
 import AdminLayout from "./pages/admin/AdminLayout";
@@ -32,6 +33,7 @@ function App() {
         <Route path="/search" element={<Search />} />
         <Route path="/login" element={<Login />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/contact" element={<Contact />} />
 
         <Route
           path="/admin"

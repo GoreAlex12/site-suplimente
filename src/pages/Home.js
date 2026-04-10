@@ -11,7 +11,7 @@ const Home = () => {
 
   useEffect(() => {
     supplementApi
-      .popular(8)
+      .popular(20)
       .then(setPopular)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -29,7 +29,7 @@ const Home = () => {
 
       <section>
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Cele mai populare suplimente
+          Top 20 cele mai populare suplimente
         </h2>
         {loading && <Loader />}
         {error && <Message type="error">{error}</Message>}
