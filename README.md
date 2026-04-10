@@ -1,70 +1,119 @@
-# Getting Started with Create React App
+# Site Suplimente — Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React SPA for browsing supplements, diseases and categories — plus a protected
+admin panel for managing the data.
 
-## Available Scripts
+## Stack
 
-In the project directory, you can run:
+- **React 19** with hooks
+- **React Router 6** (nested routes for admin)
+- **Tailwind CSS** for styling (existing `index.css` kept for navbar)
+- **Context API** for auth state (JWT stored in `localStorage`)
 
-### `npm start`
+## Prerequisites
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- The backend must be running first:
+  [`../site-suplimente-server`](../site-suplimente-server). See the backend
+  README for setup and seeding instructions.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Setup
 
-### `npm test`
+```bash
+cd site-suplimente
+npm install
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Create `.env` at the project root (already created with sane defaults):
+```
+REACT_APP_API_URL=http://localhost:5001/api
+```
 
-### `npm run build`
+Run the dev server:
+```bash
+npm start
+```
+Opens on [http://localhost:3000](http://localhost:3000).
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Project structure
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+src/
+├── components/
+│   ├── Navbar.js              # dynamic categories (from /api/categories/tree) + search
+│   ├── DropdownMenu.js        # hover dropdown, uses dynamic data
+│   ├── SupplementCard.js
+│   ├── ProtectedRoute.js
+│   ├── Loader.js
+│   └── Message.js
+├── context/
+│   └── AuthContext.js         # login/logout/me helpers
+├── pages/
+│   ├── Home.js                # "most used" supplements
+│   ├── Products.js            # list + filter by category
+│   ├── ProductDetails.js      # auto-tracks clicks
+│   ├── Diseases.js            # list + filter by symptom
+│   ├── DiseaseDetails.js      # disease + its supplements
+│   ├── Search.js              # /search?q=...
+│   ├── Login.js               # admin login
+│   ├── Cart.js
+│   └── admin/
+│       ├── AdminLayout.js     # sidebar layout
+│       ├── AdminDashboard.js  # stats + top supplements
+│       ├── CategoriesAdmin.js
+│       ├── SupplementsAdmin.js
+│       └── DiseasesAdmin.js
+├── services/
+│   └── api.js                 # fetch-based API client
+├── App.js
+└── index.js
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Public routes
 
-### `npm run eject`
+| Path                  | Page                          |
+| --------------------- | ----------------------------- |
+| `/`                   | Home — most popular products  |
+| `/products`           | All supplements + category filter |
+| `/products/:id`       | Supplement details (increments click count) |
+| `/diseases`           | All diseases (filter by symptom) |
+| `/diseases/:id`       | Disease + related supplements |
+| `/search?q=<term>`    | Search by supplement/disease/symptom |
+| `/login`              | Admin login                   |
+| `/cart`               | Cart (demo)                   |
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Admin routes (protected — admin JWT required)
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+| Path                   | Page                  |
+| ---------------------- | --------------------- |
+| `/admin`               | Dashboard + top stats |
+| `/admin/categories`    | Categories manager    |
+| `/admin/supplements`   | Supplements manager   |
+| `/admin/diseases`      | Diseases manager (with related supplements editor) |
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Default admin credentials after running `npm run seed` in the backend:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+email:    admin@suplimente.ro
+password: admin123
+```
 
-## Learn More
+## How dynamic data flows
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- The **navbar** calls `GET /api/categories/tree` on mount and builds the
+  dropdown structure from the response. Root categories group themselves under
+  `produse / suplimente / producatori / afectiuni` via the `group` field.
+- Clicking a category in the dropdown navigates to
+  `/products?category=<id>`; the Products page then calls
+  `GET /api/supplements?category=<id>` which includes root + sub categories.
+- The **home page** calls `GET /api/supplements/popular?limit=8` — supplements
+  are ranked by `cartCount` then `clickCount`, which are incremented every
+  time a user opens a product details page or adds it to the cart.
+- The **search bar** submits to `/search?q=…`, which calls
+  `GET /api/supplements/search?q=…` (matches supplement name/description,
+  disease name, and disease symptoms).
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Scripts
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- `npm start` — dev server
+- `npm run build` — production build
+- `npm test` — tests

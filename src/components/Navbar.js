@@ -1,14 +1,34 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaHeart, FaUser, FaShoppingCart, FaPhone } from "react-icons/fa";
+import { FaHeart, FaUser, FaShoppingCart, FaPhone, FaSignOutAlt, FaCogs } from "react-icons/fa";
 import { HiOutlineSearch } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
 import "../index.css";
-import { dropdownCategories } from "../data/dropdownData";
 import DropdownMenu from "./DropdownMenu";
+import { categoryApi } from "../services/api";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+
+// Known groups get a nice label + fixed ordering at the start of the menu.
+// Any other group found in the API response (including the fallback "other"
+// bucket for root categories without a group) is appended dynamically.
+const GROUP_LABELS = {
+  produse: "PRODUSE",
+  suplimente: "SUPLIMENTE",
+  producatori: "BRANDURI",
+  afectiuni: "AFECTIUNI",
+  other: "CATEGORII",
+};
+
+const KNOWN_ORDER = ["produse", "suplimente", "producatori", "afectiuni", "other"];
+
+const labelFor = (group) =>
+  GROUP_LABELS[group] || group.toUpperCase();
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { totalCount } = useCart();
   const [language, setLanguage] = useState("RO");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
@@ -16,15 +36,45 @@ const Navbar = () => {
   const [isSubcategoryHovered, setIsSubcategoryHovered] = useState(false);
   const [isNavbarHovered, setIsNavbarHovered] = useState(false);
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
+  const [dropdownCategories, setDropdownCategories] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
 
   const dropdownRef = useRef(null);
 
-  const toggleLanguage = () => {
-    setLanguage(language === "RO" ? "EN" : "RO");
-  };
+  const toggleLanguage = () => setLanguage(language === "RO" ? "EN" : "RO");
 
   const handleNavbarHover = (state) => setIsNavbarHovered(state);
   const handleDropdownHover = (state) => setIsDropdownHovered(state);
+
+  // Load dynamic category tree once
+  useEffect(() => {
+    let cancelled = false;
+    categoryApi
+      .tree()
+      .then((tree) => {
+        if (cancelled) return;
+        // Convert tree shape into what DropdownMenu expects:
+        // { group: [ { name, id, subcategories: [ { name, id } ] } ] }
+        const shaped = {};
+        Object.entries(tree).forEach(([group, roots]) => {
+          shaped[group] = roots.map((r) => ({
+            _id: r._id,
+            name: r.name,
+            subcategories: (r.subcategories || []).map((s) => ({
+              _id: s._id,
+              name: s.name,
+            })),
+          }));
+        });
+        setDropdownCategories(shaped);
+      })
+      .catch((err) => {
+        console.warn("Failed to load categories:", err.message);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let timer;
@@ -38,27 +88,39 @@ const Navbar = () => {
     return () => clearTimeout(timer);
   }, [isNavbarHovered, isDropdownHovered, isSubcategoryHovered]);
 
-  // Când se schimbă meniul principal (ex: de la PRODUSE la SUPLIMENTE), resetăm subcategoriile
-useEffect(() => {
-  setActiveCategory(null);
-  setSelectedCategory(null);
-}, [activeDropdown]);
+  useEffect(() => {
+    setActiveCategory(null);
+    setSelectedCategory(null);
+  }, [activeDropdown]);
+
+  const submitSearch = (e) => {
+    e.preventDefault();
+    const term = searchTerm.trim();
+    if (!term) return;
+    navigate(`/search?q=${encodeURIComponent(term)}`);
+  };
 
   return (
     <div>
-      {/* Bara Albă - Prima Bară */}
+      {/* Bara Alba - Prima Bara */}
       <nav className="navbar">
         <div className="navbar-top">
-          <div className="logo-container">
+          <div className="logo-container" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
             <img src={logo} alt="Logo" className="logo" />
           </div>
 
-          <div className="search-container">
-            <input type="text" placeholder="Cauta produse" className="search-bar" />
-            <button className="search-button">
+          <form className="search-container" onSubmit={submitSearch}>
+            <input
+              type="text"
+              placeholder="Cauta produse, afectiuni sau simptome"
+              className="search-bar"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <button type="submit" className="search-button">
               <HiOutlineSearch size={26} strokeWidth={1.9} />
             </button>
-          </div>
+          </form>
 
           <div className="nav-icons">
             <div className="nav-item">
@@ -69,13 +131,32 @@ useEffect(() => {
               <FaHeart className="icon-outline" />
               <span>FAVORITE</span>
             </div>
-            <div className="nav-item" onClick={() => navigate("/login")}>
-              <FaUser className="icon-outline" />
-              <span>CONECTARE</span>
-            </div>
+            {user ? (
+              <>
+                <div className="nav-item" onClick={() => navigate("/admin")}>
+                  <FaCogs className="icon-outline" />
+                  <span>ADMIN</span>
+                </div>
+                <div
+                  className="nav-item"
+                  onClick={() => {
+                    logout();
+                    navigate("/");
+                  }}
+                >
+                  <FaSignOutAlt className="icon-outline" />
+                  <span>IESIRE</span>
+                </div>
+              </>
+            ) : (
+              <div className="nav-item" onClick={() => navigate("/login")}>
+                <FaUser className="icon-outline" />
+                <span>CONECTARE</span>
+              </div>
+            )}
             <div className="nav-item" onClick={() => navigate("/cart")}>
               <FaShoppingCart className="icon-outline" />
-              <span>COS(0)</span>
+              <span>COS({totalCount})</span>
             </div>
             <div className="nav-item language-toggle" onClick={toggleLanguage}>
               <span className="flag-icon">{language === "RO" ? "🇷🇴" : "🇬🇧"}</span>
@@ -85,7 +166,7 @@ useEffect(() => {
         </div>
       </nav>
 
-      {/* Wrapper care include meniul și dropdown-ul */}
+      {/* Wrapper */}
       <div
         onMouseEnter={() => handleNavbarHover(true)}
         onMouseLeave={() => {
@@ -94,37 +175,45 @@ useEffect(() => {
           setIsSubcategoryHovered(false);
         }}
       >
-        {/* Bara Verde - A doua Bară */}
+        {/* Bara Verde */}
         <div className="navbar-bottom">
           <ul className="nav-menu">
             <li onClick={() => navigate("/")}>ACASA</li>
 
-            <li
-              className={`dropdown ${activeDropdown === "produse" ? "menu-item--active" : ""}`}
-              onMouseEnter={() => setActiveDropdown("produse")}
-            >
-              PRODUSE <span className={`triangle ${activeDropdown === "produse" ? "triangle--active" : ""}`}></span>
-            </li>
+            {/* Only render category groups that actually have at least one
+                root category in the API response. Known groups come first in
+                a fixed order, then any extra groups are appended. The
+                "afectiuni" entry is handled separately below as a permanent
+                link to the diseases page. */}
+            {(() => {
+              const present = Object.keys(dropdownCategories).filter(
+                (g) => g !== "afectiuni" && (dropdownCategories[g] || []).length > 0
+              );
+              const sorted = [
+                ...KNOWN_ORDER.filter(
+                  (g) => g !== "afectiuni" && present.includes(g)
+                ),
+                ...present.filter((g) => !KNOWN_ORDER.includes(g)),
+              ];
+              return sorted.map((group) => (
+                <li
+                  key={group}
+                  className={`dropdown ${activeDropdown === group ? "menu-item--active" : ""}`}
+                  onMouseEnter={() => setActiveDropdown(group)}
+                  onClick={() => navigate(`/products?group=${group}`)}
+                >
+                  {labelFor(group)}{" "}
+                  <span className={`triangle ${activeDropdown === group ? "triangle--active" : ""}`}></span>
+                </li>
+              ));
+            })()}
 
+            {/* AFECTIUNI — simple link, no dropdown */}
             <li
-               className={`dropdown ${activeDropdown === "suplimente" ? "menu-item--active" : ""}`}
-               onMouseEnter={() => setActiveDropdown("suplimente")}
+              onMouseEnter={() => setActiveDropdown(null)}
+              onClick={() => navigate("/diseases")}
             >
-              SUPLIMENTE <span className={`triangle ${activeDropdown === "suplimente" ? "triangle--active" : ""}`}></span>
-            </li>
-
-            <li
-              className={`dropdown ${activeDropdown === "producatori" ? "menu-item--active" : ""}`}
-              onMouseEnter={() => setActiveDropdown("producatori")}
-            >
-              BRANDURI <span className={`triangle ${activeDropdown === "producatori" ? "triangle--active" : ""}`}></span>
-            </li>      
-
-            <li
-              className={`dropdown ${activeDropdown === "afectiuni" ? "menu-item--active" : ""}`}
-              onMouseEnter={() => setActiveDropdown("afectiuni")}
-            >
-              AFECTIUNI <span className={`triangle ${activeDropdown === "afectiuni" ? "triangle--active" : ""}`}></span>
+              AFECTIUNI
             </li>
 
             <li>BLOG DE SANATATE</li>
@@ -132,7 +221,6 @@ useEffect(() => {
           </ul>
         </div>
 
-        {/* Dropdown-ul */}
         <DropdownMenu
           setIsSubcategoryHovered={setIsSubcategoryHovered}
           activeDropdown={activeDropdown}
@@ -144,6 +232,22 @@ useEffect(() => {
           handleDropdownHover={handleDropdownHover}
           dropdownRef={dropdownRef}
           dropdownCategories={dropdownCategories}
+          onSelectCategory={(cat) => {
+            setActiveDropdown(null);
+            if (activeDropdown === "afectiuni") {
+              navigate(`/diseases`);
+            } else {
+              navigate(`/products?category=${cat._id}`);
+            }
+          }}
+          onSelectSubcategory={(sub) => {
+            setActiveDropdown(null);
+            if (activeDropdown === "afectiuni") {
+              navigate(`/diseases?symptom=${encodeURIComponent(sub.name)}`);
+            } else {
+              navigate(`/products?category=${sub._id}`);
+            }
+          }}
         />
       </div>
     </div>
