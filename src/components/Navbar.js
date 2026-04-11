@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaUser, FaShoppingCart, FaPhone, FaSignOutAlt, FaCogs } from "react-icons/fa";
+import { FaUser, FaShoppingCart, FaPhone, FaSignOutAlt, FaCogs, FaBars, FaTimes } from "react-icons/fa";
 import { HiOutlineSearch } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
@@ -29,7 +29,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { totalCount } = useCart();
-  const [language, setLanguage] = useState("RO");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [activeCategory, setActiveCategory] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -38,10 +37,15 @@ const Navbar = () => {
   const [isDropdownHovered, setIsDropdownHovered] = useState(false);
   const [dropdownCategories, setDropdownCategories] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const dropdownRef = useRef(null);
 
-  const toggleLanguage = () => setLanguage(language === "RO" ? "EN" : "RO");
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+  const goMobile = (path) => {
+    closeMobileMenu();
+    navigate(path);
+  };
 
   const handleNavbarHover = (state) => setIsNavbarHovered(state);
   const handleDropdownHover = (state) => setIsDropdownHovered(state);
@@ -100,11 +104,25 @@ const Navbar = () => {
     navigate(`/search?q=${encodeURIComponent(term)}`);
   };
 
+  const submitSearchMobile = (e) => {
+    submitSearch(e);
+    closeMobileMenu();
+  };
+
   return (
     <div>
       {/* Bara Alba - Prima Bara */}
       <nav className="navbar">
         <div className="navbar-top">
+          <button
+            type="button"
+            className="mobile-menu-toggle"
+            aria-label="Meniu"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+          >
+            {mobileMenuOpen ? <FaTimes size={22} /> : <FaBars size={22} />}
+          </button>
+
           <div className="logo-container" onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
             <img src={logo} alt="Logo" className="logo" />
           </div>
@@ -150,16 +168,86 @@ const Navbar = () => {
                 <span>CONECTARE</span>
               </div>
             )}
-            <div className="nav-item" onClick={() => navigate("/cart")}>
+            <div className="nav-item nav-item-cart" onClick={() => navigate("/cart")}>
               <FaShoppingCart className="icon-outline" />
               <span>COS({totalCount})</span>
             </div>
-            <div className="nav-item language-toggle" onClick={toggleLanguage}>
-              <span className="flag-icon">{language === "RO" ? "🇷🇴" : "🇬🇧"}</span>
-              <span>{language}</span>
-            </div>
           </div>
         </div>
+
+        {/* Mobile menu panel */}
+        {mobileMenuOpen && (
+          <div className="mobile-menu">
+            <form className="mobile-search" onSubmit={submitSearchMobile}>
+              <input
+                type="text"
+                placeholder="Cauta produse, afectiuni sau simptome"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button type="submit" aria-label="Cauta">
+                <HiOutlineSearch size={22} strokeWidth={1.9} />
+              </button>
+            </form>
+
+            <ul className="mobile-nav-links">
+              <li onClick={() => goMobile("/")}>ACASA</li>
+              {(() => {
+                const present = Object.keys(dropdownCategories).filter(
+                  (g) => g !== "afectiuni" && (dropdownCategories[g] || []).length > 0
+                );
+                const sorted = [
+                  ...KNOWN_ORDER.filter(
+                    (g) => g !== "afectiuni" && present.includes(g)
+                  ),
+                  ...present.filter((g) => !KNOWN_ORDER.includes(g)),
+                ];
+                return sorted.map((group) => (
+                  <li key={group} onClick={() => goMobile(`/products?group=${group}`)}>
+                    {labelFor(group)}
+                  </li>
+                ));
+              })()}
+              <li onClick={() => goMobile("/diseases")}>AFECTIUNI</li>
+              <li onClick={() => goMobile("/contact")}>CONTACT</li>
+            </ul>
+
+            <div className="mobile-nav-actions">
+              <a href="tel:+40772027622" className="mobile-action">
+                <FaPhone className="phone-icon" />
+                <span>0772 027 622</span>
+              </a>
+              {user ? (
+                <>
+                  <button type="button" className="mobile-action" onClick={() => goMobile("/admin")}>
+                    <FaCogs />
+                    <span>ADMIN</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="mobile-action"
+                    onClick={() => {
+                      logout();
+                      goMobile("/");
+                    }}
+                  >
+                    <FaSignOutAlt />
+                    <span>IESIRE</span>
+                  </button>
+                </>
+              ) : (
+                <button type="button" className="mobile-action" onClick={() => goMobile("/login")}>
+                  <FaUser />
+                  <span>CONECTARE</span>
+                </button>
+              )}
+              <button type="button" className="mobile-action" onClick={() => goMobile("/cart")}>
+                <FaShoppingCart />
+                <span>COS ({totalCount})</span>
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Wrapper */}

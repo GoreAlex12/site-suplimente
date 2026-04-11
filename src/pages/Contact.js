@@ -89,8 +89,6 @@ const Contact = () => {
               <div className="text-sm text-gray-500">Program</div>
               <div className="font-semibold text-gray-800">
                 Luni–Vineri: 09:00–18:00
-                <br />
-                Sambata: 10:00–14:00
               </div>
             </div>
           </div>

@@ -394,11 +394,45 @@
 }
 
 
+/* 🔹 Hamburger button — hidden on desktop, visible on mobile */
+.mobile-menu-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: rgb(50, 150, 50);
+    cursor: pointer;
+    padding: 6px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 🔹 Mobile menu panel — hidden on desktop */
+.mobile-menu {
+    display: none;
+}
+
 /* ✅ FIX 5: Responsivitate pentru ecrane mici */
 @media (max-width: 1024px) {
     .dropdown-content {
         min-width: 100%;
         flex-direction: column;
+    }
+
+    .nav-icons {
+        gap: 12px;
+    }
+
+    .nav-item span {
+        font-size: 13px;
+    }
+
+    .logo-container img {
+        width: 180px;
+    }
+
+    .nav-menu {
+        gap: 22px;
+        font-size: 15px;
     }
 }
 
@@ -406,6 +440,138 @@
     .navbar-bottom {
         display: none;
     }
+
+    .navbar-top {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 10px 14px;
+    }
+
+    .mobile-menu-toggle {
+        display: inline-flex;
+        order: 1;
+    }
+
+    .logo-container {
+        order: 2;
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+
+    .logo-container img {
+        width: 150px;
+    }
+
+    .nav-icons {
+        order: 3;
+        gap: 14px;
+    }
+
+    /* On mobile, hide everything in the top bar except the cart icon — the
+       rest is reachable from the hamburger menu. */
+    .nav-icons > .nav-item:not(.nav-item-cart) {
+        display: none;
+    }
+
+    .nav-item-cart span {
+        display: none;
+    }
+
+    .search-container {
+        order: 4;
+        width: 100%;
+    }
+
+    .mobile-menu {
+        display: block;
+        background: white;
+        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        padding: 12px 14px 16px;
+    }
+
+    .mobile-search {
+        display: flex;
+        align-items: center;
+        border: 1.7px solid #9c9494;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 14px;
+    }
+
+    .mobile-search input {
+        flex: 1;
+        padding: 8px 12px;
+        border: none;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .mobile-search button {
+        background: white;
+        border: none;
+        color: rgb(99, 93, 93);
+        padding: 8px 12px;
+        cursor: pointer;
+    }
+
+    .mobile-nav-links {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 14px 0;
+    }
+
+    .mobile-nav-links li {
+        padding: 12px 4px;
+        border-bottom: 1px solid #eee;
+        font-weight: 600;
+        color: rgb(50, 150, 50);
+        cursor: pointer;
+        font-size: 15px;
+    }
+
+    .mobile-nav-links li:hover {
+        color: orange;
+    }
+
+    .mobile-nav-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .mobile-action {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 4px;
+        background: transparent;
+        border: none;
+        text-align: left;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgb(75, 75, 75);
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .mobile-action:hover {
+        color: rgb(50, 150, 50);
+    }
 }
 
+@media (max-width: 480px) {
+    .navbar-top {
+        padding: 8px 10px;
+    }
+
+    .logo-container img {
+        width: 130px;
+    }
+
+    .nav-icons {
+        gap: 10px;
+    }
+}
 

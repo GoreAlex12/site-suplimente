@@ -2,15 +2,16 @@
 //
 // API_URL resolution order:
 //   1. REACT_APP_API_URL env var (CRA picks these up at build time) — set
-//      this on your Vercel/Netlify/etc deployment to the full backend URL
-//      including the "/api" suffix, e.g.
-//      https://site-suplimente-server.onrender.com/api
-//   2. Fallback: http://localhost:5001/api for local dev.
+//      this if you need to override per-environment.
+//   2. In production builds (`npm run build`), the deployed backend on Render.
+//   3. In development (`npm start`), the local backend at localhost:5001.
+const PROD_API_URL = 'https://site-suplimente-server.onrender.com/api';
+const DEV_API_URL = PROD_API_URL;
+// const DEV_API_URL = 'http://localhost:5001/api';
 
-// process.env.REACT_APP_API_URL ||
 const API_URL =
-	'https://site-suplimente-server.onrender.com/api' ||
-	'http://localhost:5001/api';
+	process.env.REACT_APP_API_URL ||
+	(process.env.NODE_ENV === 'production' ? PROD_API_URL : DEV_API_URL);
 
 const TOKEN_KEY = 'suplimente_token';
 
@@ -67,14 +68,30 @@ export const categoryApi = {
 		request(`/categories/${id}`, { method: 'DELETE', auth: true }),
 };
 
+// Drop empty / null / undefined values so URLSearchParams doesn't emit
+// `?key=` for filters the user hasn't set.
+const cleanParams = (params = {}) => {
+	const out = {};
+	Object.entries(params).forEach(([k, v]) => {
+		if (v === undefined || v === null || v === '') return;
+		out[k] = v;
+	});
+	return out;
+};
+
 // ---------- Supplements ----------
 export const supplementApi = {
 	list: (params = {}) => {
-		const qs = new URLSearchParams(params).toString();
+		const qs = new URLSearchParams(cleanParams(params)).toString();
 		return request(`/supplements${qs ? `?${qs}` : ''}`);
 	},
 	popular: (limit = 8) => request(`/supplements/popular?limit=${limit}`),
-	search: (q) => request(`/supplements/search?q=${encodeURIComponent(q)}`),
+	search: (q, params = {}) => {
+		const qs = new URLSearchParams(
+			cleanParams({ q, ...params }),
+		).toString();
+		return request(`/supplements/search?${qs}`);
+	},
 	get: (id) => request(`/supplements/${id}`),
 	create: (data) =>
 		request('/supplements', { method: 'POST', body: data, auth: true }),
