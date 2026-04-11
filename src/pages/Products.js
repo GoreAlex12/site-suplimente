@@ -131,11 +131,17 @@ const Products = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
-          {activeCategory ? activeCategory.name : "Toate suplimentele"}
-        </h1>
-        <p className="text-gray-500 mt-1 text-sm">{supplements.length} produse</p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 tracking-tight">
+            {activeCategory ? activeCategory.name : "Toate suplimentele"}
+          </h1>
+          <p className="text-gray-500 mt-1.5 text-sm">
+            <span className="font-semibold text-green-700">{supplements.length}</span>{" "}
+            {supplements.length === 1 ? "produs disponibil" : "produse disponibile"}
+          </p>
+        </div>
+        <div className="h-1 w-20 bg-gradient-to-r from-green-600 to-emerald-400 rounded-full hidden sm:block" />
       </div>
 
       <div className="grid lg:grid-cols-[260px_1fr] gap-6">
@@ -150,21 +156,30 @@ const Products = () => {
         />
 
         <div>
-          <div className="flex items-center justify-end mb-4 gap-3">
-            <label className="text-sm text-gray-600 hidden sm:inline">
-              Sorteaza dupa:
-            </label>
-            <select
-              value={sort}
-              onChange={(e) => updateSort(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
-            >
-              {SORT_OPTIONS.map((o) => (
-                <option key={o.value} value={o.value}>
-                  {o.label}
-                </option>
-              ))}
-            </select>
+          <div className="flex items-center justify-between mb-5 gap-3 bg-white border border-gray-100 rounded-xl shadow-sm px-4 py-3">
+            <span className="text-sm text-gray-500 hidden sm:inline">
+              Afiseaza{" "}
+              <span className="font-semibold text-gray-800">
+                {supplements.length}
+              </span>{" "}
+              rezultate
+            </span>
+            <div className="flex items-center gap-2 ml-auto">
+              <label className="text-sm text-gray-600 hidden sm:inline font-medium">
+                Sorteaza:
+              </label>
+              <select
+                value={sort}
+                onChange={(e) => updateSort(e.target.value)}
+                className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white font-medium text-gray-700 cursor-pointer transition"
+              >
+                {SORT_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {loading && <Loader />}
