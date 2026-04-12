@@ -12,17 +12,8 @@ const Promotii = () => {
 
   useEffect(() => {
     supplementApi
-      .list()
-      .then((data) => {
-        // Keep only supplements that have a promoPrice lower than their price
-        const promos = data.filter(
-          (s) =>
-            s.promoPrice != null &&
-            s.price != null &&
-            s.promoPrice < s.price
-        );
-        setSupplements(promos);
-      })
+      .promo()
+      .then(setSupplements)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);

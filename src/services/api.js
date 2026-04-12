@@ -86,6 +86,7 @@ export const supplementApi = {
 		return request(`/supplements${qs ? `?${qs}` : ''}`);
 	},
 	popular: (limit = 8) => request(`/supplements/popular?limit=${limit}`),
+	promo: () => request('/supplements/promo'),
 	search: (q, params = {}) => {
 		const qs = new URLSearchParams(
 			cleanParams({ q, ...params }),

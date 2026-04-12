@@ -23,18 +23,11 @@ const Home = () => {
   useEffect(() => {
     Promise.all([
       supplementApi.popular(20),
-      supplementApi.list(),
+      supplementApi.promo(),
     ])
-      .then(([pop, all]) => {
+      .then(([pop, promo]) => {
         setPopular(pop);
-        setPromos(
-          all.filter(
-            (s) =>
-              s.promoPrice != null &&
-              s.price != null &&
-              s.promoPrice < s.price
-          )
-        );
+        setPromos(promo);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
