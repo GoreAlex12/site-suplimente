@@ -12,6 +12,10 @@ const SupplementCard = ({ supplement }) => {
   const inCartItem = getItem(supplement._id);
   const hasImage = supplement.image && !imgError;
   const categoryLabel = (supplement.categories || [])[0]?.name;
+  const hasPromo =
+    supplement.promoPrice != null &&
+    supplement.price != null &&
+    supplement.promoPrice < supplement.price;
 
   const handleOpen = () => {
     // Track click for popularity ranking (fire-and-forget)
@@ -32,13 +36,18 @@ const SupplementCard = ({ supplement }) => {
     >
       {/* Badges */}
       <div className="absolute top-3 left-3 right-3 z-10 flex items-start justify-between gap-2 pointer-events-none">
-        {categoryLabel ? (
-          <span className="bg-white/90 backdrop-blur text-gray-700 text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-sm border border-gray-100 truncate max-w-[60%]">
-            {categoryLabel}
-          </span>
-        ) : (
-          <span />
-        )}
+        <div className="flex flex-col gap-1.5">
+          {hasPromo && (
+            <span className="bg-red-500 text-white text-[11px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-sm">
+              -{Math.round(((supplement.price - supplement.promoPrice) / supplement.price) * 100)}%
+            </span>
+          )}
+          {categoryLabel && (
+            <span className="bg-white/90 backdrop-blur text-gray-700 text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full shadow-sm border border-gray-100 truncate max-w-[10rem]">
+              {categoryLabel}
+            </span>
+          )}
+        </div>
         {inCartItem && (
           <span className="bg-green-600 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
             <FaCheck size={9} />
@@ -78,9 +87,20 @@ const SupplementCard = ({ supplement }) => {
             <span className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">
               Pret
             </span>
-            <span className="text-green-700 font-bold text-lg">
-              {supplement.price ? `${supplement.price} lei` : "—"}
-            </span>
+            {hasPromo ? (
+              <div className="flex items-baseline gap-2">
+                <span className="text-red-600 font-bold text-lg">
+                  {supplement.promoPrice} lei
+                </span>
+                <span className="text-gray-400 text-sm line-through">
+                  {supplement.price} lei
+                </span>
+              </div>
+            ) : (
+              <span className="text-green-700 font-bold text-lg">
+                {supplement.price ? `${supplement.price} lei` : "—"}
+              </span>
+            )}
           </div>
           <button
             onClick={handleAddToCart}

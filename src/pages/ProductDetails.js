@@ -94,6 +94,13 @@ const ProductDetails = () => {
           <div className="relative bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 p-8 md:p-12 flex items-center justify-center min-h-[320px] md:min-h-[480px]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,rgba(255,255,255,0.9),transparent_60%)]" />
             <div className="absolute top-4 left-4 flex flex-col gap-2">
+              {supplement.promoPrice != null &&
+                supplement.price != null &&
+                supplement.promoPrice < supplement.price && (
+                  <span className="bg-red-500 text-white text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full shadow-md">
+                    -{Math.round(((supplement.price - supplement.promoPrice) / supplement.price) * 100)}% REDUCERE
+                  </span>
+                )}
               {categories.slice(0, 2).map((c) => (
                 <span
                   key={c._id || c.name}
@@ -143,7 +150,24 @@ const ProductDetails = () => {
 
             {/* Price block */}
             <div className="flex items-end gap-3 mb-6 pb-6 border-b border-gray-100">
-              {supplement.price ? (
+              {supplement.promoPrice != null &&
+              supplement.price != null &&
+              supplement.promoPrice < supplement.price ? (
+                <>
+                  <span className="text-4xl font-bold text-red-600">
+                    {supplement.promoPrice}
+                  </span>
+                  <span className="text-xl font-semibold text-red-600 mb-1">
+                    lei
+                  </span>
+                  <span className="text-xl text-gray-400 line-through mb-1 ml-2">
+                    {supplement.price} lei
+                  </span>
+                  <span className="text-xs text-gray-400 mb-1.5 ml-1">
+                    TVA inclus
+                  </span>
+                </>
+              ) : supplement.price ? (
                 <>
                   <span className="text-4xl font-bold text-green-700">
                     {supplement.price}

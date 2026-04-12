@@ -8,6 +8,7 @@ const emptyForm = {
   name: "",
   description: "",
   price: "",
+  promoPrice: "",
   image: "",
   categories: [],
   diseases: [],
@@ -71,6 +72,7 @@ const SupplementsAdmin = () => {
         name: form.name.trim(),
         description: form.description,
         price: Number(form.price) || 0,
+        promoPrice: form.promoPrice !== "" ? Number(form.promoPrice) : null,
         image: form.image,
         categories: form.categories,
         diseases: form.diseases,
@@ -97,6 +99,7 @@ const SupplementsAdmin = () => {
       name: s.name || "",
       description: s.description || "",
       price: s.price || "",
+      promoPrice: s.promoPrice != null ? s.promoPrice : "",
       image: s.image || "",
       categories: (s.categories || []).map((c) => c._id || c),
       diseases: (s.diseases || []).map((d) => d._id || d),
@@ -139,7 +142,7 @@ const SupplementsAdmin = () => {
           {editing ? "Editeaza supliment" : "Adauga supliment"}
         </h3>
 
-        <div className="grid md:grid-cols-2 gap-3">
+        <div className="grid md:grid-cols-3 gap-3">
           <input
             type="text"
             placeholder="Nume"
@@ -152,6 +155,13 @@ const SupplementsAdmin = () => {
             placeholder="Pret (lei)"
             value={form.price}
             onChange={(e) => setForm({ ...form, price: e.target.value })}
+            className="border border-gray-300 rounded-lg px-3 py-2"
+          />
+          <input
+            type="number"
+            placeholder="Pret promotional (lei) — gol = fara promo"
+            value={form.promoPrice}
+            onChange={(e) => setForm({ ...form, promoPrice: e.target.value })}
             className="border border-gray-300 rounded-lg px-3 py-2"
           />
         </div>
@@ -280,6 +290,7 @@ const SupplementsAdmin = () => {
                 <th className="p-3 w-14"></th>
                 <th className="p-3">Nume</th>
                 <th className="p-3">Pret</th>
+                <th className="p-3">Promo</th>
                 <th className="p-3">Categorii</th>
                 <th className="p-3">Afectiuni</th>
                 <th className="p-3">Click</th>
@@ -310,6 +321,13 @@ const SupplementsAdmin = () => {
                   </td>
                   <td className="p-3 font-medium text-gray-800">{s.name}</td>
                   <td className="p-3">{s.price || "—"}</td>
+                  <td className="p-3">
+                    {s.promoPrice != null ? (
+                      <span className="text-red-600 font-semibold">{s.promoPrice}</span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="p-3">
                     {(s.categories || []).map((c) => c.name || c).join(", ") || "—"}
                   </td>
@@ -343,7 +361,7 @@ const SupplementsAdmin = () => {
               ))}
               {supplements.length === 0 && (
                 <tr>
-                  <td colSpan="8" className="p-3 text-gray-400 text-center">
+                  <td colSpan="9" className="p-3 text-gray-400 text-center">
                     Niciun supliment.
                   </td>
                 </tr>

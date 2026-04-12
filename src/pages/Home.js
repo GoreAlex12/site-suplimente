@@ -7,6 +7,7 @@ import {
   FaGift,
   FaHeartbeat,
   FaArrowRight,
+  FaTag,
 } from "react-icons/fa";
 import { supplementApi } from "../services/api";
 import SupplementCard from "../components/SupplementCard";
@@ -15,13 +16,26 @@ import Message from "../components/Message";
 
 const Home = () => {
   const [popular, setPopular] = useState([]);
+  const [promos, setPromos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    supplementApi
-      .popular(20)
-      .then(setPopular)
+    Promise.all([
+      supplementApi.popular(20),
+      supplementApi.list(),
+    ])
+      .then(([pop, all]) => {
+        setPopular(pop);
+        setPromos(
+          all.filter(
+            (s) =>
+              s.promoPrice != null &&
+              s.price != null &&
+              s.promoPrice < s.price
+          )
+        );
+      })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -148,75 +162,123 @@ const Home = () => {
       </section>
 
       {/* Promo / offers strip */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12">
         <Link
           to="/products"
-          className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 text-white p-6 shadow hover:shadow-xl transition"
+          className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 text-white p-6 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
-          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/15"></div>
-          <FaPercent className="text-3xl mb-3 opacity-90" />
-          <div className="text-xs font-semibold tracking-wider opacity-90 mb-1">
-            REDUCERE
+          <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-lg" />
+          <div className="absolute -left-4 -bottom-8 h-24 w-24 rounded-full bg-white/10 blur-lg" />
+          <div className="relative">
+            <FaPercent className="text-2xl mb-3 opacity-90" />
+            <div className="text-[11px] font-bold tracking-widest opacity-80 mb-1">
+              REDUCERE
+            </div>
+            <h3 className="text-xl font-bold mb-1 leading-snug">
+              -20% la prima comanda
+            </h3>
+            <p className="text-sm opacity-85 mb-4">
+              Foloseste codul WELCOME20 la finalizare.
+            </p>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all">
+              Profita acum <FaArrowRight size={11} />
+            </span>
           </div>
-          <h3 className="text-2xl font-bold mb-1">-20% la prima comanda</h3>
-          <p className="text-sm opacity-90 mb-3">
-            Foloseste codul WELCOME20 la finalizare.
-          </p>
-          <span className="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all">
-            Profita acum <FaArrowRight size={11} />
-          </span>
         </Link>
 
         <Link
           to="/products?group=suplimente"
-          className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 to-teal-500 text-white p-6 shadow hover:shadow-xl transition"
+          className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-green-600 to-teal-500 text-white p-6 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all"
         >
-          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/15"></div>
-          <FaGift className="text-3xl mb-3 opacity-90" />
-          <div className="text-xs font-semibold tracking-wider opacity-90 mb-1">
-            OFERTA SPECIALA
+          <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-lg" />
+          <div className="absolute -left-4 -bottom-8 h-24 w-24 rounded-full bg-white/10 blur-lg" />
+          <div className="relative">
+            <FaGift className="text-2xl mb-3 opacity-90" />
+            <div className="text-[11px] font-bold tracking-widest opacity-80 mb-1">
+              OFERTA SPECIALA
+            </div>
+            <h3 className="text-xl font-bold mb-1 leading-snug">
+              2+1 GRATIS la vitamine
+            </h3>
+            <p className="text-sm opacity-85 mb-4">
+              La selectia de vitamine si minerale.
+            </p>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all">
+              Vezi selectia <FaArrowRight size={11} />
+            </span>
           </div>
-          <h3 className="text-2xl font-bold mb-1">2+1 GRATIS la vitamine</h3>
-          <p className="text-sm opacity-90 mb-3">
-            La selectia de vitamine si minerale.
-          </p>
-          <span className="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all">
-            Vezi selectia <FaArrowRight size={11} />
-          </span>
         </Link>
 
         <Link
           to="/diseases"
-          className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-500 text-white p-6 shadow hover:shadow-xl transition sm:col-span-2 lg:col-span-1"
+          className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-500 text-white p-6 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all sm:col-span-2 lg:col-span-1"
         >
-          <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/15"></div>
-          <FaHeartbeat className="text-3xl mb-3 opacity-90" />
-          <div className="text-xs font-semibold tracking-wider opacity-90 mb-1">
-            GHID
+          <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-white/10 blur-lg" />
+          <div className="absolute -left-4 -bottom-8 h-24 w-24 rounded-full bg-white/10 blur-lg" />
+          <div className="relative">
+            <FaHeartbeat className="text-2xl mb-3 opacity-90" />
+            <div className="text-[11px] font-bold tracking-widest opacity-80 mb-1">
+              GHID
+            </div>
+            <h3 className="text-xl font-bold mb-1 leading-snug">
+              Suplimente pe afectiuni
+            </h3>
+            <p className="text-sm opacity-85 mb-4">
+              Descopera ce te poate ajuta in functie de simptome.
+            </p>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all">
+              Exploreaza <FaArrowRight size={11} />
+            </span>
           </div>
-          <h3 className="text-2xl font-bold mb-1">Suplimente pe afectiuni</h3>
-          <p className="text-sm opacity-90 mb-3">
-            Descopera ce te poate ajuta in functie de simptome.
-          </p>
-          <span className="inline-flex items-center gap-2 text-sm font-semibold group-hover:gap-3 transition-all">
-            Exploreaza <FaArrowRight size={11} />
-          </span>
         </Link>
       </section>
+
+      {/* Promo products — only shown if any exist */}
+      {!loading && promos.length > 0 && (
+        <section className="mb-12">
+          <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center border border-red-100">
+                <FaTag size={16} />
+              </div>
+              <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+                  Reduceri active
+                </h2>
+                <p className="text-gray-500 text-sm mt-0.5">
+                  <span className="font-semibold text-red-600">{promos.length}</span>{" "}
+                  {promos.length === 1 ? "produs" : "produse"} la pret redus
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/promotii"
+              className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 font-semibold text-sm transition-colors"
+            >
+              Vezi toate ofertele <FaArrowRight size={11} />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {promos.slice(0, 8).map((s) => (
+              <SupplementCard key={s._id} supplement={s} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <section>
         <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">
-              Top 20 cele mai populare suplimente
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              Cele mai populare produse
             </h2>
             <p className="text-gray-500 text-sm mt-1">
-              Cele mai cumparate produse de clientii nostri
+              Alese de clientii nostri
             </p>
           </div>
           <Link
             to="/products"
-            className="text-green-700 hover:text-green-800 font-semibold text-sm inline-flex items-center gap-1"
+            className="inline-flex items-center gap-2 text-green-700 hover:text-green-800 font-semibold text-sm transition-colors"
           >
             Vezi toate <FaArrowRight size={11} />
           </Link>

@@ -1,10 +1,13 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { supplementApi, categoryApi, diseaseApi } from "../services/api";
 import SupplementCard from "../components/SupplementCard";
 import FilterSidebar from "../components/FilterSidebar";
 import Loader from "../components/Loader";
 import Message from "../components/Message";
+
+const PER_PAGE = 20;
 
 const SORT_OPTIONS = [
   { value: "newest", label: "Cele mai noi" },
@@ -28,6 +31,7 @@ const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const group = searchParams.get("group") || "";
   const sort = searchParams.get("sort") || "newest";
+  const page = Math.max(1, parseInt(searchParams.get("page"), 10) || 1);
 
   const filters = useMemo(() => filtersFromParams(searchParams), [searchParams]);
 
@@ -109,6 +113,7 @@ const Products = () => {
         if (v === undefined || v === null || v === "") sp.delete(k);
         else sp.set(k, v);
       });
+      sp.delete("page");
       setSearchParams(sp);
     },
     [searchParams, setSearchParams]
@@ -116,8 +121,8 @@ const Products = () => {
 
   const resetFilters = useCallback(() => {
     const sp = new URLSearchParams(searchParams);
-    ["category", "minPrice", "maxPrice", "disease", "hasPrice"].forEach((k) =>
-      sp.delete(k)
+    ["category", "minPrice", "maxPrice", "disease", "hasPrice", "page"].forEach(
+      (k) => sp.delete(k)
     );
     setSearchParams(sp);
   }, [searchParams, setSearchParams]);
@@ -126,8 +131,37 @@ const Products = () => {
     const sp = new URLSearchParams(searchParams);
     if (value && value !== "newest") sp.set("sort", value);
     else sp.delete("sort");
+    sp.delete("page");
     setSearchParams(sp);
   };
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(supplements.length / PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+  const paged = supplements.slice((safePage - 1) * PER_PAGE, safePage * PER_PAGE);
+
+  const goToPage = (p) => {
+    const sp = new URLSearchParams(searchParams);
+    if (p <= 1) sp.delete("page");
+    else sp.set("page", String(p));
+    setSearchParams(sp);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Build visible page numbers: always show first, last, current ± 1
+  const pageNumbers = useMemo(() => {
+    const pages = new Set([1, totalPages]);
+    for (let i = Math.max(1, safePage - 1); i <= Math.min(totalPages, safePage + 1); i++) {
+      pages.add(i);
+    }
+    const sorted = [...pages].sort((a, b) => a - b);
+    const result = [];
+    for (let i = 0; i < sorted.length; i++) {
+      if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push(null); // gap
+      result.push(sorted[i]);
+    }
+    return result;
+  }, [safePage, totalPages]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
@@ -160,6 +194,10 @@ const Products = () => {
             <span className="text-sm text-gray-500 hidden sm:inline">
               Afiseaza{" "}
               <span className="font-semibold text-gray-800">
+                {(safePage - 1) * PER_PAGE + 1}–{Math.min(safePage * PER_PAGE, supplements.length)}
+              </span>{" "}
+              din{" "}
+              <span className="font-semibold text-gray-800">
                 {supplements.length}
               </span>{" "}
               rezultate
@@ -189,10 +227,51 @@ const Products = () => {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {supplements.map((s) => (
+            {paged.map((s) => (
               <SupplementCard key={s._id} supplement={s} />
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <nav className="flex items-center justify-center gap-1.5 mt-10">
+              <button
+                onClick={() => goToPage(safePage - 1)}
+                disabled={safePage <= 1}
+                className="h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 hover:border-green-400 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              >
+                <FaChevronLeft size={12} />
+              </button>
+
+              {pageNumbers.map((p, i) =>
+                p === null ? (
+                  <span key={`gap-${i}`} className="px-1 text-gray-400 text-sm select-none">
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => goToPage(p)}
+                    className={`h-10 min-w-[2.5rem] px-2 flex items-center justify-center rounded-xl text-sm font-semibold transition ${
+                      p === safePage
+                        ? "bg-green-600 text-white shadow-md"
+                        : "border border-gray-200 bg-white text-gray-700 hover:border-green-400 hover:text-green-700"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() => goToPage(safePage + 1)}
+                disabled={safePage >= totalPages}
+                className="h-10 w-10 flex items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 hover:border-green-400 hover:text-green-700 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              >
+                <FaChevronRight size={12} />
+              </button>
+            </nav>
+          )}
         </div>
       </div>
     </div>

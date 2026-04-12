@@ -202,6 +202,13 @@ const Navbar = () => {
                   ),
                   ...present.filter((g) => !KNOWN_ORDER.includes(g)),
                 ];
+
+                if (sorted.length === 0) {
+                  return (
+                    <li onClick={() => goMobile("/products")}>CATEGORII</li>
+                  );
+                }
+
                 return sorted.map((group) => (
                   <li key={group} onClick={() => goMobile(`/products?group=${group}`)}>
                     {labelFor(group)}
@@ -209,6 +216,7 @@ const Navbar = () => {
                 ));
               })()}
               <li onClick={() => goMobile("/diseases")}>AFECTIUNI</li>
+              <li onClick={() => goMobile("/despre-noi")}>DESPRE NOI</li>
               <li onClick={() => goMobile("/contact")}>CONTACT</li>
             </ul>
 
@@ -264,11 +272,8 @@ const Navbar = () => {
           <ul className="nav-menu">
             <li onClick={() => navigate("/")}>ACASA</li>
 
-            {/* Only render category groups that actually have at least one
-                root category in the API response. Known groups come first in
-                a fixed order, then any extra groups are appended. The
-                "afectiuni" entry is handled separately below as a permanent
-                link to the diseases page. */}
+            {/* Category groups — if the tree hasn't loaded yet, show a
+                single "CATEGORII" link so the bar is never empty. */}
             {(() => {
               const present = Object.keys(dropdownCategories).filter(
                 (g) => g !== "afectiuni" && (dropdownCategories[g] || []).length > 0
@@ -279,6 +284,15 @@ const Navbar = () => {
                 ),
                 ...present.filter((g) => !KNOWN_ORDER.includes(g)),
               ];
+
+              if (sorted.length === 0) {
+                return (
+                  <li onClick={() => navigate("/products")}>
+                    CATEGORII
+                  </li>
+                );
+              }
+
               return sorted.map((group) => (
                 <li
                   key={group}
@@ -298,6 +312,13 @@ const Navbar = () => {
               onClick={() => navigate("/diseases")}
             >
               AFECTIUNI
+            </li>
+
+            <li
+              onMouseEnter={() => setActiveDropdown(null)}
+              onClick={() => navigate("/despre-noi")}
+            >
+              DESPRE NOI
             </li>
 
             <li onClick={() => navigate("/contact")}>CONTACT</li>
