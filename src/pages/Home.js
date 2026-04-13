@@ -134,7 +134,7 @@ const Home = () => {
                   <span className="flex-shrink-0 h-5 w-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
                     ✓
                   </span>
-                  <span className="opacity-90">Peste 500 de produse</span>
+                  <span className="opacity-90">Peste 150 de produse</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="flex-shrink-0 h-5 w-5 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
